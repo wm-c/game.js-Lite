@@ -15,6 +15,7 @@ function startLoops() {
     try {draw} catch (err){console.warn(bug+" no draw function found");return null;}
     try {update} catch (err){console.warn(bug+" no update function found");return null;}
     try {input} catch (err){seperateInputLoop=false;}
+    try {onAssetsLoaded()} catch (err) {}
 
     requestAnimationFrame(drawLoop);
     setInterval(updateLoop,1000/updateFPS);
