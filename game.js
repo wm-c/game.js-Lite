@@ -3,7 +3,7 @@ function createCanvas(id) {
     tempCanvas.id = id;
     tempCanvas.width = canvases.cvs.width;
     tempCanvas.height = canvases.cvs.height;
-    tempCanvas.style = "image-rendering:pixelated;display:none;";//
+    tempCanvas.style = "image-rendering:pixelated;display:none";//display:none;
 
     document.body.appendChild(tempCanvas);
 
@@ -308,7 +308,7 @@ function addFont() {
 }
 function img(img,x,y,angle=0,sx=1,sy=1) {
     var half = img.drawLimitSize;
-    if(x+half>drawLimitLeft&&x-half<drawLimitRight&&y+half>drawLimitTop&&y-half<drawLimitBottom) {
+    if((x+half>drawLimitLeft&&x-half<drawLimitRight&&y+half>drawLimitTop&&y-half<drawLimitBottom)||absDraw) {
         var spr = img.spr;
         if(angle===0&&sx===1&&sy===1) {
             curCtx.drawImage(spr,Math.round(x+camera.x+difx-(spr.width/2)),Math.round(y+camera.y+dify-(spr.height/2)));
@@ -464,7 +464,7 @@ function switchDrawMode() {
 
 function resizeBuffers() {
     var tempSize = maxCvsSize/camera.zoom;
-    var tempSizeAndPadding = tempSize + (tempSize/4)
+    var tempSizeAndPadding = tempSize + (tempSize/2)
 
     canvases.buffer2cvs.width = tempSizeAndPadding;
     canvases.buffer2cvs.height = tempSizeAndPadding;
@@ -894,6 +894,7 @@ camera={zoom:1,angle:0,x:0,y:0}, // affects how everything is drawn
 updateFPS=60,
 gameStarted=false,
 drawMode=0, // 0=normal, 1=zoomed, 2=zoomed/rotated, set automatically depending on camera
+absDraw=false,
 curCtx, // what canvas to draw to
 maxCvsSize, // used by second buffer
 canvasScale=1,
@@ -1000,10 +1001,12 @@ function drawLoop() {
 
     clearCanvases();
 
-    drawLimitLeft   = -camera.x - (drawMode==2?sizeDif:0);
-    drawLimitRight  = -camera.x + maxCvsSize + (drawMode==2?sizeDif:0);
-    drawLimitTop    = -camera.y -(drawMode==2?sizeDif:0);
-    drawLimitBottom = -camera.y + maxCvsSize + (drawMode==2?sizeDif:0);
+    var limitModifyer = 0;
+    if(drawMode==2) {limitModifyer=canvases.buffer2cvs.width-maxCvsSize;}
+    drawLimitLeft   = -camera.x - (drawMode==2?sizeDif:0) - limitModifyer;
+    drawLimitRight  = -camera.x + maxCvsSize + (drawMode==2?sizeDif:0) + limitModifyer;
+    drawLimitTop    = -camera.y -(drawMode==2?sizeDif:0) - limitModifyer;
+    drawLimitBottom = -camera.y + maxCvsSize + (drawMode==2?sizeDif:0) + limitModifyer;
 
     draw();
     
@@ -1014,7 +1017,9 @@ function drawLoop() {
     var camCache = {x:camera.x,y:camera.y};
     camera.x=0;camera.y=0;
     drawMode=0;
+    absDraw=true;
     try{absoluteDraw();} catch (err){}
+    absDraw=false;
 
     drawButtons();
     drawOptionsMenu();
