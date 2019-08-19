@@ -198,6 +198,8 @@ function addSound(sound) {
     abuffer.push(soundNode);
     volumeList.push(gainNode);
     sound.volNodes.push(volumeList.length-1);
+
+    volumeList[sound.volNodes[sound.volNodes.length-1]].gain.value = volumeList[sound.volNodes[0]].gain.value
 }
 
 
@@ -309,7 +311,7 @@ function addFont() {
 function img(img,x,y,angle=0,sx=1,sy=1) {
     var half = img.drawLimitSize;
     if((x+half>drawLimitLeft&&x-half<drawLimitRight&&y+half>drawLimitTop&&y-half<drawLimitBottom)||absDraw) {
-        var spr = img.spr;
+        let spr = img.spr;
         if(angle===0&&sx===1&&sy===1) {
             curCtx.drawImage(spr,Math.round(x+camera.x+difx-(spr.width/2)),Math.round(y+camera.y+dify-(spr.height/2)));
         } else {
@@ -322,7 +324,7 @@ function img(img,x,y,angle=0,sx=1,sy=1) {
 }
 
 function imgIgnoreCutoff(img,x,y,angle=0,sx=1,sy=1) {
-    var spr = img.spr;
+    let spr = img.spr;
     if(angle===0&&sx===1&&sy===1) {
         curCtx.drawImage(spr,Math.round(x+camera.x+difx-(spr.width/2)),Math.round(y+camera.y+dify-(spr.height/2)));
     } else {
@@ -420,9 +422,9 @@ function imgRotScale(x,y,angle,scale,pic,ctx) { //used for camera movement
 function drawCursor() {
     if(cursor.sprite&&mouseOnCanvas) {
         if(cursor.alignment) {
-            canvases.ctx.drawImage(cursor.sprite,mousePos.x-Math.round(cursor.sprite.width/2),mousePos.y-Math.round(cursor.sprite.height/2));
+            canvases.ctx.drawImage(cursor.sprite.spr,mousePos.x-Math.round(cursor.sprite.spr.width/2),mousePos.y-Math.round(cursor.sprite.spr.height/2));
         } else {
-            canvases.ctx.drawImage(cursor.sprite,mousePos.x,mousePos.y);
+            canvases.ctx.drawImage(cursor.sprite.spr,mousePos.x,mousePos.y);
         }
         cursor.show = false;
     } else {
@@ -1015,6 +1017,7 @@ function drawLoop() {
     curCtx=canvases.ctx;
     difx=0;dify=0;
     var camCache = {x:camera.x,y:camera.y};
+    var drawModeCache = drawMode;
     camera.x=0;camera.y=0;
     drawMode=0;
     absDraw=true;
@@ -1024,6 +1027,8 @@ function drawLoop() {
     drawButtons();
     drawOptionsMenu();
     drawCursor();
+
+    drawMode=drawModeCache;
 
     camera.x = camCache.x;
     camera.y = camCache.y;
@@ -1035,8 +1040,8 @@ function updateLoop() {
     if(seperateInputLoop==false) {
         handleOptionsInput();
     }
-    sfxVolumeNode = volume.sfx;
-    bmgVolumeNode = volume.bmg;
+    sfxVolumeNode.gain.value = volume.sfx;
+    bmgVolumeNode.gain.value = volume.bgm;
     if(!paused) {
         update();
     }

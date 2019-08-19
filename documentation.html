@@ -5,25 +5,272 @@
         <style>
             body {
                 background-color: #232323;
-                color: #4f82d8;
+                color: #538df1;
                 font-family:monospace;
             }
-            .title {
+            .white {
                 color: #dddddd;
             }
             .section {
                 position: relative;
                 left: 5%;
             }
+            .indent {
+                position: relative;
+                left: 10%;
+            }
+            .red {
+                color: rgb(194, 22, 56);
+            }
+            pre {
+                color: rgb(194, 22, 56);
+            }
+            a {
+                color: rgb(235, 27, 27);
+            }
+            a:hover {
+                color: rgb(255, 134, 134);
+            }
+            select {
+                padding: 5px 15px 5px 5px;
+                border: 3px solid #666666;
+                border-radius: 5px;
+                background-color: #232323;
+                color: #538df1;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+            }
+            select:hover {
+                background-color: #333333;
+            }
         </style>
     </head>
     <body>
-        <h1 class="title">game.js docs</h1>
+        <h1 class="white">game.js docs</h1>
         <div class="section">
-            <h2 class="title">Overview</h2>
-            <p>game.js is a file to help with making games in the html canvas. This is mainly ment for pixel art games.</p>
-
-            <p>documantation //TODO</p>
+            <h2 class="white">Overview</h2>
+            <p>game.js is a file to help with making games in the html canvas. This is mainly meant for pixel art games, as the way stuff is rendered is very pixelated.</p>
+            <h2>Jump to</h2>
+            <div>
+                <a href="#setup">setup</a>
+                <a href="#structure">structure</a>
+                <a href="#graphics">graphics</a>
+                <a href="#physics">physics</a>
+                <a href="#audio">audio</a>
+                <a href="#input">input</a>
+                <a href="#utils">utils</a>
+            </div>
+            <a name="setup"></a>
+            <h2 class="white">setup</h2>
+                <div class="section">
+                    <h3>Loading Assets</h3>
+                    <div class="section">
+                        <p>assign <span class="white">images</span> and <span class="white">audio</span> an array with the sources relative to the html file in which games.js is used.</p>
+                        <p>The first string of an array will be added on to the start of following strings. Example:</p>
+                        <pre>
+    images = [
+        "folder1/",
+        "pic1.png",
+        [
+            "subfolder/"
+            "pic2.png"
+        ],
+        "pic3.png"
+    ];
+                        </pre>
+                        <p>will result in </p>
+                        <pre>
+    "folder1/pic1.png",
+    "folder1/subfolder/pic2.png",
+    "folder1/pic3.png"
+                        </pre>
+                    </div>
+                    <h3>Start the game</h3>
+                    <div class="section">
+                        <p>After stuff in your scripts has loaded, call <span class="white">setup(framerate)</span>. Now the user can click play to start the game</p>
+                        <p>Note: the framerate is only used for physics updates, drawing frames uses requestAnimationFrame()</p>
+                    </div>
+                    <h3>After assets load</h3>
+                    <div class="section">
+                        <p>If you need to run code once, after all assets have been loaded,</p>
+                        <p>create a function called <span class="white">onAssetsLoaded()</span>. If this exists in your code it will be called after assets are loaded</p>
+                    </div>
+                </div>
+            <a name="structure"></a>
+            <h2 class="white">structure</h2>
+            <div class="section">
+            <p>There are two functions that must be defined in your script, and two optional functions.</p>
+                <h3>Physics</h3>
+                <div class="section">
+                    <p><span class="white">update()</span> - required, will try to be called at the framerate set with <span class="white">setup(framerate)</span></p>
+                    <p><span class="white">input()</span> - optional, if included, will try to be called every 4 milliseconds. Anything can be run here, but it is recommended to just run <a href="#input">input</a> code.</p>
+                </div>
+                <h3>Graphics</h3>
+                <div class="section">
+                    <p><span class="white">draw()</span> - required, uses requestAnimationFrame(), so frame rate will vary but is mostly 60fps.</p>
+                    <p>     functions found in <a href="#graphics">graphics</a> can be called here.</p>
+                    <p><span class="white">absoluteDraw()</span> - optional, if included, called immediately after <span class="white">draw()</span>, same as <span class="white">draw()</span>, except graphics ignore the camera when called here. Good for things like UI.</p>
+                </div>
+            </div>
+            <a name="graphics"></a>
+            <h2 class="white">graphics</h2>
+            <div class="section">
+                <h3>Variables</h3>
+                <div class="section">
+                    <p><span class="white">sprites</span> - images that have been loaded in. The name of a sprite is just the file name without the file extension.</p>
+                    <p>Example: an image loaded like this: <span class="red">images = [ "assets/", "pic.png" ]</span> can be accessed like: <span class="red">sprites.pic</span></p>
+                    <p><span class="white">canvasScale</span> - screen pixels per game pixels. Uses css to scale the canvas. This was implemented very poorly,</p>
+                    <p>so if you want use it, try something like this: <span class="red">function update() { if(screenSize == "1:1") {canvasScale = 2} }</span></p>
+                    <p><span class="white">cursor</span> - set a sprite as the cursor</p>
+                    <div class="section">
+                        <p><span class="white">.sprite</span> - sprite to show</p>
+                        <p><span class="white">.alignment</span> - 0 = top left, 1 = centered</p>
+                    </div>
+                    <p><span class="white">cw</span> - canvas width</p>
+                    <p><span class="white">ch</span> - canvas height</p>
+                </div>
+                <h3>Functions</h3>
+                <div class="section">
+                    <p><span class="white">img(sprite, x, y, angle=0, sx=1, sy=1)</span> - draws a sprite centered on x,y. Angle is rotation in radians. sx, sy is scale x and y to draw the image at</p>
+                    <p><span class="white">imgIgnoreCutoff(img, x, y, angle=0, sx=1, sy=1)</span> - same as img, but will draw the image even if off the canvas. If an image is larger than the canvas, it will break img(), so use this.</p>
+                    <p>Note: color can be any HTML color as a string</p>
+                    <p><span class="white">rect(x, y, w, h, color)</span> - draws a rectangle centered on the x,y. w is width, h is height</p>
+                    <p><span class="white">circle(x, y, r, color)</span> - draws a circle centered on the x,y. r is radius</p>
+                    <p><span class="white">shape(x, y, relitivePoints, color)</span> - connects the points given in relitivePoints, relative to x,y then fills in the shape. relitivePoints should be an array of points (objects with and x and y)</p>
+                    <p>Red triangle at 100, 100 example: <span class="red">shape(100, 100, [{x:-10, y:-10}, {x:10, y:-10}, {x:0, y:10}], "red");</span></p>
+                    <p><span class="white">text(txt, x, y, color="black", size=1, maxWidth=cw)</span> - draws the string passed into txt. x,y is the top left of the text. Default color is black. Size sets the font size to size * 8. maxWidth is how many pixels text will go to the right before wrapping.</p>
+                    <p><span class="white">textWidth(txt, size=1)</span> - returns how many pixels wide a sting will be.</p>
+                </div>
+                <h3>Camera</h3>
+                <div class="section">
+                    <p>The camera is just an object that will offset all graphics according to its values</p>
+                    <p><span class="white">camera</span> - object used to offset graphics</p>
+                    <div class="section">
+                        <p><span class="white">.x</span> - x offset of graphics</p>
+                        <p><span class="white">.y</span> - y offset of graphics</p>
+                        <p><span class="white">.zoom</span> - amount graphics are scaled by. Partial numbers work, but whole numbers look better</p>
+                        <p><span class="white">.angle</span> - angle, in radians, the graphics are rotated by</p>
+                    </div>
+                    <p><span class="white">centerCameraOn(x, y)</span> - centers the x and y of the camera on the x and y passed in</p>
+                    <p><span class="white">moveCamera(x, y)</span> - moves the camera taking into account the angle. Example: move camera "forwards" <span class="red">moveCamera(0, -1)</span></p>
+                </div>
+            </div>
+            <a name="physics"></a>
+            <h2 class="white">physics</h2>
+            <div class="section">
+                <h3>Points, Circles, and Rectangles</h3>
+                <div class="section">
+                    <p>3 different things can be used for physics (which is just collision detection), points, circles, and rectangles.</p>
+                    <p>To have any of these, all you need is any object with the right properties.</p>
+                    <p><span class="white">point</span> - any object with an <span class="white">x</span> and a <span class="white">y</span></p>
+                    <p><span class="white">circle</span> - any object with an <span class="white">x</span>, <span class="white">y</span>, and <span class="white">r</span> (radius)</p>
+                    <p><span class="white">rectangle</span> - any object with an <span class="white">x</span>, <span class="white">y</span>, <span class="white">w</span> (width), and <span class="white">h</span> (height)</p>
+                </div>
+                <h3>Collision Detection</h3>
+                <div class="section">
+                    <p>detect collision between  
+                        <select id="col1">
+                            <option value="rect">rect</option>
+                            <option value="circle">circle</option>
+                            <option value="point">point</option>
+                        </select> 
+                        and
+                        <select id="col2">
+                            <option value="rect">rect</option>
+                            <option value="circle">circle</option>
+                            <option value="point">point</option>
+                        </select>
+                        </p>
+                        <p><span class="white" id="txtOut"></span></p>
+                        <p>returns true if there is a collision, returns false if no collision.</p>
+                </div>
+                <h3>Misc.</h3>
+                <div class="section">
+                    <p><span class="white">dist(point, point)</span> - returns the distance between two points</p>
+                    <p><span class="white">circleOnSideRect(circle, rect)</span> - returns a number to indicate what side of a rectangle a circle is on.</p>
+                    <p class="section">return values: <span class="red">0 = top, 1 = right, 2 = bottom, 3 = left</span></p>
+                    <p><span class="white">rectOnSideRect(rect, rect)</span> - returns a number to indicate what side of a rectangle a rectangle is on.</p>
+                </div>
+            </div>
+            <a name="audio"></a>
+            <h2 class="white">audio</h2>
+            <div class="section">
+                <p><span class="white">sounds</span> - sounds defined in the <span class="white">audio</span> variable will be loaded in during <span class="white">setup(framerate)</span>, and stored in <span class="white">sounds</span></p>
+                <p><span class="white">play(sound)</span> - plays a sound. Example: <span class="red">play(sounds.mySound)</span></p>
+                <p><span class="white">setVolume(sound, volume)</span> - sets the gain for a sound. 1 is the default volume, 0 is no sound</p>
+                <p><span class="white">setType(sound, type)</span> - sets the type for a sound. The type is used by the built in options for volume of sound effects and music. Type can either be <span class="red">"sfx"</span> or <span class="red">"bgm"</span></p>
+                <p><span class="white">stop(sound)</span> - stops all instances of that sound</p>
+            </div>
+            <a name="input"></a>
+            <h2 class="white">input</h2>
+            <div class="section">
+                <p>The input system is basically some arrays with booleans that correspond to keys or buttons</p>
+                <p>If there is no <a href="#structure">input function</a>, call input code in the <span class="white">update</span> function</p>
+                <h3>Keys</h3>
+                <div class="section">
+                    <p><span class="white">keyDown</span> - an array of booleans at the position of their corresponding key code. True when their key is held down.</p>
+                    <p>To access a specific key, access the array at position [key code]</p>
+                    <p>Up arrow key example: <span class="red">if( keyDown[ 38 ] ) { //code }</span></p>
+                    <p><span class="white">keyPress</span> - same as keyDown, but only true the first frame a key is pressed</p>
+                    <p><span class="white">k</span> - an object with key codes</p>
+                    <p>Same example as above, but using k: <span class="red">if( keyDown[ k.UP ] ) { //code }</span></p>
+                    <p>To see the full list that k has, enter k in the console or see the list here: a-z, 0-9, F1-F12, BACKTICK, MINUS, EQUALS, OPENSQUARE, ENDSQUARE, SEMICOLON, SINGLEQUOTE, BACKSLASH, COMMA, PERIOD, SLASH, ENTER, BACKSPACE, TAB, CAPSLOCK, SHIFT, CONTROL, ALT, META, LEFTBACKSLASH, ESCAPE, HOME, END, PAGEUP, PAGEDOWN, DELETE, INSERT, PAUSE, UP, DOWN, LEFT, RIGHT, CONTEXT, SPACE</p>
+                </div>
+                <h3>Mouse</h3>
+                <div class="section">
+                    <p><span class="white">mouseDown</span> - an array of booleans corresponding to mouse buttons. True when a mouse button is held down. To access a specific button, access the array at position [button code]</p>
+                    <p><span class="white">mousePress</span> - same as mouseDown, but only true the first frame a button is pressed</p>
+                    <p><span class="white">mouse buttons</span> - 0 = LMB, 1 = middle click, 2 = RMB</p>
+                    <p>left click example: <span class="red">if( mousePress[ 0 ] ) { //code }</span></p>
+                    <p><span class="white">scroll</span> - variable whose value is the scroll amount. One tick of a normal scroll wheel is 1 or -1, but things like laptop touchpads might return partial numbers.</p>
+                </div>
+            </div>
+            <a name="utils"></a>
+            <h2 class="white">utils</h2>
+            <div class="section">
+                <p><span class="white">rand(minimum, maximum)</span> - returns a random whole number between the minimum and maximum (both inclusive)</p>
+                <p><span class="white">radToDeg(radians)</span> - pass in an angle in radians, returns the angle in degrees</p>
+                <p><span class="white">degToRad(degrees)</span> - pass in an angle in degrees, returns the angle in radians</p>
+                <p><span class="white">pointTo(point, targetPoint)</span> - returns the angle (in radians) something at <span class="white">point</span> needs to be at to point towards <span class="white">targetPoint</span></p>
+            </div>
         </div>
+        <script>
+        setInterval(physicsUIUpdate,16);
+        function physicsUIUpdate() {
+            var col1 = document.getElementById("col1").value;
+            var col2 = document.getElementById("col2").value;
+
+            var txtOutput;
+
+            testForMatch(col1 + col2);
+            testForMatch(col2 + col1);
+            function testForMatch(str) {
+                switch(str) {
+                    case "circlecircle":
+                        txtOutput = "circlecircle(circle, circle)";
+                        break;
+                    case "circlepoint":
+                        txtOutput = "circlepoint(circle, point)";
+                        break;
+                    case "rectrect":
+                        txtOutput = "rectrect(rect, rect)";
+                        break;
+                    case "rectpoint":
+                        txtOutput = "rectpoint(rect, point)";
+                        break;
+                    case "circlerect":
+                        txtOutput = "circlerect(circle, rect)";
+                        break;
+                    case "pointpoint":
+                        txtOutput = "p1.x == p2.x && p1.y == p2.y";
+                        break;
+                }
+            }
+
+            document.getElementById("txtOut").innerHTML = txtOutput;
+        }
+        </script>
     </body>
 </html>
+<span class="white"></span>
