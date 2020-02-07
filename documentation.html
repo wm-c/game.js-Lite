@@ -64,6 +64,10 @@
             <a name="setup"></a>
             <h2 class="white">setup</h2>
                 <div class="section">
+                    <h3>Canvas</h3>
+                    <div class="section">
+                        <p>For game.js to work, there needs to be a canvas element in your html file, that has id "game"</p>
+                    </div>
                     <h3>Loading Assets</h3>
                     <div class="section">
                         <p>assign <span class="white">images</span> and <span class="white">audio</span> an array with the sources relative to the html file in which games.js is used.</p>
@@ -224,6 +228,8 @@
                     <p><span class="white">mouse buttons</span> - 0 = LMB, 1 = middle click, 2 = RMB</p>
                     <p>left click example: <span class="red">if( mousePress[ 0 ] ) { //code }</span></p>
                     <p><span class="white">scroll</span> - variable whose value is the scroll amount. One tick of a normal scroll wheel is 1 or -1, but things like laptop touchpads might return partial numbers.</p>
+                    <p><span class="white">mousePosition()</span> - returns a point representing where the mouse is in the game.</p>
+                    <p><span class="white">mousePos</span> - an object with an x and y. The mouse position ignoring the camera.</p>
                 </div>
             </div>
             <a name="utils"></a>
